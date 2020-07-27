@@ -1,0 +1,35 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+canvas {
+    background-color: #191919;
+}
+#state {
+    position: absolute;
+    top: 20px;
+    left: 50vw;
+}
+#player {
+    position: absolute;
+    top: 40px;
+    left: 50vw;
+}
+#dt {
+    position: absolute;
+    top: 60px;
+    left: 50vw;
+}
+body {
+    background-color: #0F0F0F;
+}
+ul li {
+    color: #565656;
+}
