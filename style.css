@@ -27,9 +27,20 @@ canvas {
     top: 60px;
     left: 50vw;
 }
+#lag {
+    position: absolute;
+    top: 80px;
+    left: 50vw;
+}
+#score {
+    position: absolute;
+    top: 100px;
+    left: 50vw;
+}
 body {
     background-color: #0F0F0F;
 }
 ul li {
     color: #565656;
+    list-style: none;
 }
