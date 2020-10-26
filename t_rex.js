@@ -139,16 +139,7 @@ Enemy.prototype.update = function () {
 }
 
 let enemyType = [{
-        type: 'one',
-        width: 60,
-        height: 30,
-        xCor: ctx.canvas.width - 15,
-        yCor: ctx.canvas.height - game_settings.ground,
-        xVel: 4,
-        color: 'rgba(87,87,87,1)'
-    },
-    {
-        type: 'two',
+        type: 'tall_cactus',
         width: 30,
         height: 60,
         xCor: ctx.canvas.width - 15,
@@ -157,16 +148,7 @@ let enemyType = [{
         color: 'rgba(87,87,87,1)'
     },
     {
-        type: 'three',
-        width: 30,
-        height: 30,
-        xCor: ctx.canvas.width - 15,
-        yCor: ctx.canvas.height - game_settings.ground,
-        xVel: 4,
-        color: 'rgba(87,87,87,1)'
-    },
-    {
-        type: 'bird',
+        type: 'small_cactus',
         width: 30,
         height: 30,
         xCor: ctx.canvas.width - 15,
@@ -177,15 +159,15 @@ let enemyType = [{
 ];
 
 function updateEnemyData(arr, val) {
-    if(arr && val ) {
+    if (arr && val) {
         arr.forEach(el => {
-            el.xVel = val; 
+            el.xVel = val;
         });
     }
 }
 
 enemyType.forEach(el => {
-    el.type !== 'bird' ? el.yCor -= el.height : el.yCor -= el.height * 2;
+    el.type !== 'eagle' ? el.yCor -= el.height : el.yCor -= el.height * 2;
 });
 
 let spawn = {
@@ -198,13 +180,38 @@ let spawn = {
     }
 };
 spawn.start();
+let notInstantiated1 = true,
+    notInstantiated2 = true;
 function checkScore() {
     if (parseInt(game_settings.score, 10) > spawn.currentCheckPoint) {
         spawn.currentCheckPoint += 100;
         let currentxVel = enemyType[0]['xVel'];
-        currentxVel > 10 ? currentxVel : currentxVel += .5;
+        currentxVel > 10 ? currentxVel : currentxVel += 0.5;
         updateEnemyData(enemyType, currentxVel)
         console.log(`reached ${spawn.currentCheckPoint} next checkpoint ${spawn.currentCheckPoint + 100} `)
+    }
+    if (parseInt(game_settings.score, 10) > 200 && notInstantiated1) {
+        enemyType.push({
+            type: 'wide_cactus',
+            width: 60,
+            height: 30,
+            xCor: ctx.canvas.width - 15,
+            yCor: ctx.canvas.height - game_settings.ground,
+            xVel: 4,
+            color: 'rgba(87,87,87,1)'
+        })
+        notInstantiated1 = false;
+    } else if (parseInt(game_settings.score, 10) > 500 && notInstantiated2) {
+        enemyType.push({
+            type: 'eagle',
+            width: 30,
+            height: 30,
+            xCor: ctx.canvas.width - 15,
+            yCor: ctx.canvas.height - game_settings.ground,
+            xVel: 4,
+            color: 'rgba(87,87,87,1)'
+        })
+        notInstantiated2 = false;
     }
 }
 // # -- Player -- # //
