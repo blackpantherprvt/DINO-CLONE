@@ -1,3 +1,1 @@
-# T-rexClone
-This is simple chrome's T-rex game clone, made with vanilla JS and HTML CANVAS api.
-I tried to apply what I have learned about JS and simple Math, including object constructors, collision math, and more.
+This is a clone of chrome's Dino game, built using vanilla JS on HTML5 Canvas.
