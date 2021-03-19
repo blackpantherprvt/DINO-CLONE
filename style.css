@@ -1,6 +1,14 @@
+@font-face {
+    font-family: score;
+    src: url('score.ttf');
+}
+  
+
 * {
     padding: 0;
     margin: 0;
+    font-family: score, sans-serif;
+    text-transform: uppercase;
 }
 
 .container {
@@ -10,7 +18,7 @@
     height: 100vh;
 }
 canvas {
-    background-color: #191919;
+    background-color: #fff;
 }
 #state {
     position: absolute;
@@ -32,14 +40,25 @@ canvas {
     top: 80px;
     left: 50vw;
 }
-#score {
+#score_container {
     position: absolute;
-    top: 100px;
-    left: 50vw;
+    top: calc(100vh - 90%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 4px;
 }
-body {
-    background-color: #0F0F0F;
+.score {
+    color: #64686b;
+    margin-right: 10px
 }
+#scoreLabel {
+    font-size: 16px;
+}
+#score {
+    font-size: 70px;
+}
+
 ul li {
     color: #565656;
     list-style: none;
