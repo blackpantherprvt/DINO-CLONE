@@ -20,6 +20,7 @@ let gameSettings = {
     friction: 0.2,
     ground: 10,
     fps: 1000 / 60,
+    difficulty: 3.5,
     bgColor: "white",
     gameOver: false,
     gMode: true
@@ -94,26 +95,40 @@ class Enemy {
         this.yCor = data.yCor;
         this.width = data.width;
         this.height = data.height;
-        this.xVel = data.xVel;
+        this.xVel = gameSettings.difficulty;
         this.color = data.color;
-        this.img = data.img;
+        this.currentFrame = 0;
+        this.delayFrame = 3;
+        this.count = 0;
+        this.sprites = data.sprites;
+        this.isMultSprites = Array.isArray(data.sprites);
     }
 
     draw() {
         let img = new Image();
-        img.onload = () => {}
-        img.src = this.img;
+        img.src = this.isMultSprites ? this.sprites[this.currentFrame] : this.sprites;
         ctx.beginPath();
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
+        ctx.imageSmoothingEnabled = false;
         ctx.strokeStyle = this.color;
-        ctx.strokeRect(this.xCor, this.yCor, this.width, this.height);
+        // ctx.strokeRect(this.xCor, this.yCor, this.width, this.height);
         ctx.drawImage(img, this.xCor, this.yCor, this.width, this.height);
     }
 
     update() {
         this.draw();
         this.xCor -= this.xVel;
+        if(this.isMultSprites) {
+            if (this.count > 3) {
+                if (this.currentFrame >= 1) {
+                    this.currentFrame = 0
+                } else {
+                    this.currentFrame++;
+                }
+                this.count = 0;
+            } else {
+                this.count++;
+            }
+        }
     }
 }
 
@@ -123,9 +138,8 @@ let enemyType = [{
         height: 40,
         xCor: ctx.canvas.width - 15,
         yCor: ctx.canvas.height - gameSettings.ground - 40,
-        xVel: 4,
         color: "red",
-        img: "./assets/enemies/cactus_1.png"
+        sprites: "./assets/enemies/cactus_1.png"
     },
     {
         type: "cactus_2",
@@ -133,9 +147,8 @@ let enemyType = [{
         height: 45,
         xCor: ctx.canvas.width - 50,
         yCor: ctx.canvas.height - gameSettings.ground - 45,
-        xVel: 4,
         color: "red",
-        img: "./assets/enemies/cactus_2.png"
+        sprites: "./assets/enemies/cactus_2.png"
     },
     {
         type: "cactus_3",
@@ -143,9 +156,8 @@ let enemyType = [{
         height: 40,
         xCor: ctx.canvas.width - 30,
         yCor: ctx.canvas.height - gameSettings.ground - 40,
-        xVel: 4,
         color: "red",
-        img: "./assets/enemies/cactus_3.png"
+        sprites: "./assets/enemies/cactus_3.png"
     },
     {
         type: "bird",
@@ -153,16 +165,16 @@ let enemyType = [{
         height: 30,
         xCor: ctx.canvas.width - 15,
         yCor: ctx.canvas.height - gameSettings.ground - 130,
-        xVel: 4,
         color: "red",
-        img: "./assets/enemies/bird_1.png"
+        sprites: ["./assets/enemies/bird_1.png","./assets/enemies/bird_2.png"]
     }
 ];
 
 let spawn = {
     interval: 2000,
     currentCheckPoint: 50,
-    start() {
+    currentEnemySelection:2,
+    start(clear) {
         let spawnInterval = setInterval(() => {
             if (document.hasFocus()) {
                 enemies.push(new Enemy(enemyType[Math.floor(Math.random() * enemyType.length)]));
@@ -174,34 +186,43 @@ spawn.start();
 let instantiated1 = true;
 let instantiated2 = true;
 
-function scoreWatch() {
-    let currentxVel = enemyType[0]["xVel"];
+function diffucltyManager() {
     if (+gameSettings.score > spawn.currentCheckPoint) {
         spawn.currentCheckPoint += 100;
-        currentxVel > 10 ? currentxVel : currentxVel += 0.5;
+        gameSettings.difficulty += 0.5;
     }
     if (+gameSettings.score > 200 && instantiated1) {
-        enemyType.push();
         instantiated1 = false;
+        spawn.currentEnemySelection = 3;
     }
     if (+gameSettings.score > 500 && instantiated2) {
-        enemyType.push();
         instantiated2 = false;
+        spawn.currentEnemySelection = 4;
     }
 }
+function scoreManager() {
+    let score = +gameSettings.score;
+    let digitCount = 4;
+    score++;
+    gameSettings.score = `${"0".repeat(digitCount - score.toString().length)}${score.toString()}`;
+}
+
+setInterval(() => {
+    scoreManager();
+}, 200)
 // # -- Player -- # //
 
 let player = {
     xCor: 50,
     yCor: ctx.canvas.height / 2,
-    width: 45,
-    height: 50,
+    width: 43,
+    height: 48,
     color: "#64686b",
     xVel: 5,
     yVel: 0,
     isJumping: false,
     currentFrame: 0,
-    delayFrame: 100,
+    delayFrame: 3,
     count: 0,
     sprites: [
         "./assets/player/dino_sprite_1.png",
@@ -212,16 +233,12 @@ let player = {
         let img = new Image();
         img.src = this.sprites[this.currentFrame];
         ctx.beginPath();
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
+        ctx.imageSmoothingEnabled =  false;
         ctx.strokeStyle = this.color;
         // ctx.strokeRect(this.xCor, this.yCor, this.width, this.height);
         ctx.drawImage(img, this.xCor, this.yCor, this.width, this.height);
     },
     log() {
-        // state.innerHTML = "State : " + this.state;
-        // player_y_position.innerHTML = "Player yCor pos: " + this.yCor;
-        // player_y_position.innerHTML = "Player yCor pos: " + this.yCor;
         score.innerHTML = " " + gameSettings.score;
     },
     physics() {
@@ -253,7 +270,7 @@ let player = {
             this.yVel = 14;
         }
         if (controller.down) {
-            this.yVel -= 3;
+            this.yVel -= 6;
             // this.height = tools.lerp(this.height, 20, 0.5);
             // this.width = tools.lerp(this.width, 40, 0.5);
         } else {
@@ -269,16 +286,7 @@ let player = {
     }
 }
 
-// # -- Clear memory -- # //
-function clearMem() {
-    if (enemies.length >= 0) {
-        for (let i = 0; i < enemies.length; i++) {
-            if (enemies[i].xCor + enemies[i].width < 0) {
-                enemies.splice(i, 1);
-            }
-        }
-    }
-}
+
 
 // # -- Collision detection -- # //
 function isCollided(gMode) {
@@ -300,9 +308,21 @@ function isCollided(gMode) {
         }
     }
 }
-
+function gameManager(gMode) {
+    if (typeof isCollided() == "object") {
+        let { bool, enemy, randRGBA } = isCollided(gMode);
+        if (bool) {
+            enemy.color = randRGBA;
+            gameSettings.isJumping = true;
+            clearInterval(updateInterval);
+        } else {
+            enemy.color = "rgba(87,87,87,1)";
+        }
+    }
+}
 // # -- Loop -- # //
-let updateInterval = setInterval(() => {
+function update() {
+    requestAnimationFrame(update)
     if (document.hasFocus()) {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         world();
@@ -311,64 +331,21 @@ let updateInterval = setInterval(() => {
         }
         player.update();
         clearMem();
-        scoreWatch();
+        diffucltyManager();
         gameManager(gameSettings.gMode);
     }
-}, gameSettings.fps);
-
-
-function gameManager(gMode) {
-    if (typeof isCollided() == "object") {
-        let {
-            bool,
-            enemy,
-            randRGBA
-        } = isCollided(gMode);
-        if (bool) {
-            enemy.color = randRGBA;
-            gameSettings.isJumping = true;
-            clearInterval(startScore);
-            clearInterval(updateInterval);
-        }
-        // else {
-        //     enemy.color = "rgba(87,87,87,1)";
-        // }
-    }
 }
 
-// Score //
+update();
 
-let digits = [];
-let len = 5;
 
-class Digit {
-    constructor(i, len, currentVal) {
-        this.i = i;
-        this.currentVal = currentVal;
-        this.len = len;
-    }
-    update() {
-        let previousDigit = this.i + 1 > this.len ? null : digits[this.i + 1];
-        if (!previousDigit) {
-            this.currentVal++;
-        } else if (previousDigit.currentVal > 8) {
-            this.currentVal++;
-            previousDigit.currentVal = 0;
+// # -- Clear memory -- # //
+function clearMem() {
+    if (enemies.length >= 0) {
+        for (let i = 0; i < enemies.length; i++) {
+            if (enemies[i].xCor + enemies[i].width < 0) {
+                enemies.splice(i, 1);
+            }
         }
-        let values = [];
-        for (let i = 0; i < digits.length; i++) {
-            values.push(digits[i].currentVal);
-        }
-        gameSettings.score = values.toString().replace(/,/g, "");
     }
 }
-
-for (let i = 0; i < len; i++) {
-    digits.push(new Digit(i, len, 0))
-}
-
-let startScore = setInterval(() => {
-    for (let i = 0; i < digits.length; i++) {
-        digits[i].update();
-    }
-}, 100)

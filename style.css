@@ -1,6 +1,6 @@
 @font-face {
     font-family: score;
-    src: url('score.ttf');
+    src: url('assets/fonts/score.ttf');
 }
   
 
@@ -56,7 +56,7 @@ canvas {
     font-size: 16px;
 }
 #score {
-    font-size: 70px;
+    font-size: 40px;
 }
 
 ul li {
