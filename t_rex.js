@@ -290,7 +290,7 @@ let player = {
 class Background {
     constructor(name) {
         this.x = 0;
-        this.y = ctx.canvas.height - 40 - 10;
+        this.y = ctx.canvas.height - 40 - 14;
         this.width = 1200;
         this.height = 40;
         this.name = name;
@@ -305,8 +305,12 @@ class Background {
         switch (this.name) {
             case "cactus":
                 img.src = this.sprites.bgCactus;
+                ctx.drawImage(img, this.x, this.y, this.width, this.height);
                 break;
             case "ground":
+                this.height = 12;
+                this.wdith = 1500;
+                this.y = ctx.canvas.height - 12 - 10;
                 let img2 = new Image();
                 img.src = this.sprites.ground[0];
                 img2.src = this.sprites.ground[1];
@@ -317,14 +321,13 @@ class Background {
             default:
                 break;
         }
-        ctx.drawImage(img, this.x, this.y, this.width, this.height);
-        this.x -= gameSettings.difficulty /6;
-        console.log(this.x)
+        this.x -= gameSettings.difficulty / 6;
     }
 }
 
 let backgrounds = [];
 backgrounds.push(new Background("cactus"));
+backgrounds.push(new Background("ground"));
 
 // # -- Collision detection -- # //
 function isCollided(gMode) {
