@@ -194,10 +194,11 @@ function diffucltyManager() {
     if (+gameSettings.score > 200 && instantiated1) {
         instantiated1 = false;
         spawn.currentEnemySelection = 3;
+        spawn.currentEnemySelection !== 3 ? spawn.currentEnemySelection = 3 : false;
     }
     if (+gameSettings.score > 500 && instantiated2) {
         instantiated2 = false;
-        spawn.currentEnemySelection = 4;
+        spawn.currentEnemySelection !== 4 ? spawn.currentEnemySelection = 4 : false;
     }
 }
 function scoreManager() {
@@ -233,10 +234,10 @@ let player = {
         let img = new Image();
         img.src = this.sprites[this.currentFrame];
         ctx.beginPath();
-        ctx.imageSmoothingEnabled =  false;
         ctx.strokeStyle = this.color;
-        // ctx.strokeRect(this.xCor, this.yCor, this.width, this.height);
+        ctx.imageSmoothingEnabled =  false;
         ctx.drawImage(img, this.xCor, this.yCor, this.width, this.height);
+        // ctx.strokeRect(this.xCor, this.yCor, this.width, this.height);
     },
     log() {
         score.innerHTML = " " + gameSettings.score;
@@ -286,7 +287,44 @@ let player = {
     }
 }
 
+class Background {
+    constructor(name) {
+        this.x = 0;
+        this.y = ctx.canvas.height - 40 - 10;
+        this.width = 1200;
+        this.height = 40;
+        this.name = name;
+        this.sprites = {
+            ground: ["./assets/environment/ground_1.png", "./assets/environment/ground_2.png"],
+            bgCactus: "./assets/environment/background_cactus.png"
+        }
+    }
+    draw() {
+        let img = new Image();
+        ctx.imageSmoothingEnabled =  false;
+        switch (this.name) {
+            case "cactus":
+                img.src = this.sprites.bgCactus;
+                break;
+            case "ground":
+                let img2 = new Image();
+                img.src = this.sprites.ground[0];
+                img2.src = this.sprites.ground[1];
+                ctx.drawImage(img, this.x, this.y, this.width, this.height);
+                ctx.drawImage(img2, 1200, this.y, this.width, this.height);
+                break;
+        
+            default:
+                break;
+        }
+        ctx.drawImage(img, this.x, this.y, this.width, this.height);
+        this.x -= gameSettings.difficulty /6;
+        console.log(this.x)
+    }
+}
 
+let backgrounds = [];
+backgrounds.push(new Background("cactus"));
 
 // # -- Collision detection -- # //
 function isCollided(gMode) {
@@ -308,6 +346,7 @@ function isCollided(gMode) {
         }
     }
 }
+
 function gameManager(gMode) {
     if (typeof isCollided() == "object") {
         let { bool, enemy, randRGBA } = isCollided(gMode);
@@ -320,11 +359,16 @@ function gameManager(gMode) {
         }
     }
 }
+
 // # -- Loop -- # //
 function update() {
     requestAnimationFrame(update)
+    
     if (document.hasFocus()) {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        backgrounds.forEach(bg => {
+            bg.draw();
+        })
         world();
         for (let i = 0; i < enemies.length; i++) {
             enemies[i].update();
@@ -337,7 +381,6 @@ function update() {
 }
 
 update();
-
 
 // # -- Clear memory -- # //
 function clearMem() {
